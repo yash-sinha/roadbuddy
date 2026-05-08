@@ -474,6 +474,29 @@ export function AgentDetail({ agent, policyText = '', canReview = false, onAppro
           </div>
         )}
 
+        {agent.timeline && agent.timeline.length > 0 && (
+          <div>
+            <h3 className="text-xs uppercase tracking-wider text-zinc-400 mb-3">Event Timeline</h3>
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 space-y-4">
+              {agent.timeline.map((event, index) => (
+                <div key={`${event.stage}-${event.time}-${index}`} className="flex gap-4">
+                  <div className="flex flex-col items-center">
+                    <div className="w-3 h-3 rounded-full bg-violet-500 mt-1" />
+                    {index < agent.timeline!.length - 1 && <div className="w-px flex-1 bg-zinc-800 mt-2" />}
+                  </div>
+                  <div className="flex-1 pb-3">
+                    <div className="flex items-center justify-between gap-4">
+                      <p className="text-sm text-white">{event.label}</p>
+                      <span className="text-xs text-zinc-300">{event.time}</span>
+                    </div>
+                    {event.note && <p className="text-xs text-zinc-300 mt-1 leading-relaxed">{event.note}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {(policyText || (agent.policyChunks && agent.policyChunks.length > 0)) && (
           <div>
             <h3 className="text-xs uppercase tracking-wider text-zinc-400 mb-3">Policy Document</h3>
@@ -509,29 +532,6 @@ export function AgentDetail({ agent, policyText = '', canReview = false, onAppro
                   </div>
                 </details>
               )}
-            </div>
-          </div>
-        )}
-
-        {agent.timeline && agent.timeline.length > 0 && (
-          <div>
-            <h3 className="text-xs uppercase tracking-wider text-zinc-400 mb-3">Event Timeline</h3>
-            <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 space-y-4">
-              {agent.timeline.map((event, index) => (
-                <div key={`${event.stage}-${event.time}-${index}`} className="flex gap-4">
-                  <div className="flex flex-col items-center">
-                    <div className="w-3 h-3 rounded-full bg-violet-500 mt-1" />
-                    {index < agent.timeline!.length - 1 && <div className="w-px flex-1 bg-zinc-800 mt-2" />}
-                  </div>
-                  <div className="flex-1 pb-3">
-                    <div className="flex items-center justify-between gap-4">
-                      <p className="text-sm text-white">{event.label}</p>
-                      <span className="text-xs text-zinc-300">{event.time}</span>
-                    </div>
-                    {event.note && <p className="text-xs text-zinc-300 mt-1 leading-relaxed">{event.note}</p>}
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         )}

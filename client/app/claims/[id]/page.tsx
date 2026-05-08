@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   ArrowLeft, CheckCircle2, XCircle, Clock, AlertTriangle,
-  Mic, FileText, Car, MapPin, Wrench, Phone, ChevronDown, ChevronUp,
+  Mic, FileText, Car, MapPin, Wrench, ChevronDown, ChevronUp,
 } from 'lucide-react'
 import { API_BASE, WS_URL } from '@/lib/api'
 
@@ -468,21 +468,6 @@ export default function ClaimDetailPage() {
           </div>
         )}
 
-        {/* Call back button */}
-        {!isClosed && (
-          <div className="pt-2 pb-8">
-            <Link
-              href={`/call?callback=${claim.id}`}
-              className="flex items-center justify-center gap-2 w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-medium transition-colors shadow-lg shadow-emerald-900/30"
-            >
-              <Phone className="w-5 h-5" />
-              Call About This Claim
-            </Link>
-            <p className="text-center text-xs text-zinc-400 mt-2">
-              Starts a new call with this claim as context
-            </p>
-          </div>
-        )}
       </main>
     </div>
   )

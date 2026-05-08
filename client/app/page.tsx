@@ -310,6 +310,43 @@ function matchesQueueFilter(agent: LiveClaim, filter: QueueFilter) {
   return true
 }
 
+function buildTimelineFromPersisted(claim: PersistedClaim): TimelineEvent[] {
+  const events: TimelineEvent[] = []
+  const ts = formatClaimTimestamp(claim.created_at)
+  events.push({ stage: 'intake', label: 'Voice Intake', time: ts, note: claim.caller_name ? `Captured details for ${claim.caller_name}.` : 'Caller details captured.' })
+  if (claim.transcript || claim.conversation_transcript) {
+    events.push({ stage: 'call_ended', label: 'Call Ended', time: ts, note: 'Caller hung up, post-call pipeline started.' })
+  }
+  if (claim.damage_type) {
+    const sev = claim.damage_severity ? ` (${claim.damage_severity})` : ''
+    events.push({ stage: 'damage_assessment', label: 'Damage Assessed', time: ts, note: `Type: ${claim.damage_type}${sev}.` })
+  }
+  if (parsePolicyChunks(claim.policy_chunks).length > 0) {
+    events.push({ stage: 'rag', label: 'Policy Retrieved', time: ts, note: 'Relevant policy sections fetched.' })
+  }
+  if (claim.covered != null || claim.confidence != null) {
+    const conf = claim.confidence != null ? ` (${Math.round(claim.confidence * 100)}% confidence)` : ''
+    const verdict = claim.covered === 1 ? 'Covered' : claim.covered === 0 ? 'Not covered' : 'Pending'
+    events.push({ stage: 'coverage', label: 'Coverage Decision', time: ts, note: `${verdict}${conf}.` })
+  }
+  if (claim.escalated === 1) {
+    events.push({ stage: 'escalation', label: 'Escalated for Review', time: ts, note: 'Routed to human reviewer.' })
+  }
+  if (claim.action_type) {
+    events.push({ stage: 'decision', label: 'Action Selected', time: ts, note: `Dispatch: ${claim.action_type}.` })
+  }
+  if (claim.sms_text) {
+    events.push({ stage: 'complete', label: 'Customer Notified', time: ts, note: 'Outcome message prepared.' })
+  }
+  if (claim.status === 'cancelled') {
+    events.push({ stage: 'cancelled', label: 'Claim Cancelled', time: ts, note: 'Auto-cancelled or abandoned.' })
+  }
+  if (claim.status === 'archived') {
+    events.push({ stage: 'archived', label: 'Claim Archived', time: ts, note: 'Manually archived by reviewer.' })
+  }
+  return events
+}
+
 function mapPersistedClaim(claim: PersistedClaim): LiveClaim {
   return {
     id: claim.id,
@@ -350,6 +387,7 @@ function mapPersistedClaim(claim: PersistedClaim): LiveClaim {
       rental: claim.rental_name ? { name: claim.rental_name, address: claim.rental_address || 'Rental address pending' } : null,
     } : undefined,
     callSummary: claim.summary || undefined,
+    timeline: buildTimelineFromPersisted(claim),
   }
 }
 
